@@ -5,14 +5,37 @@ const contacts = JSON.parse(fs.readFileSync('db.json'))
 //-------------------------------------------------------------------------------------------
 // export functions
 const checkId = (req, res, next, id) => {
-	console.log(`the id is: ${id} \n cheking if it's valid...`)
+	console.log(`the id is: ${id} \n checking if it's valid...`)
 	if (id > contacts.length - 1 || id < 0)
 		return res.status(404).json({ status: 'fail', message: 'invalid id' })
 	next()
 }
 //-------------------------------------------------------------------------------------------
+const checkPostForm = (req, res, next) => {
+	const receivedDataLength = Object.keys(req.body).length
+	const receivedData = req.body
+	if (req.method === 'POST') {
+		if (receivedDataLength > 0) {
+			if (receivedData.firstName.length > 0 && receivedData.age.length > 0) {
+				return next()
+			} else {
+				return res.status(400).json({
+					status: 'failed',
+					message: 'empty field detected'
+				})
+			}
+		} else if (receivedDataLength == 0) {
+			return res.status(400).json({
+				status: 'failed',
+				message: 'data not received on the server'
+			})
+		}
+	}
+	next()
+}
+
+//-------------------------------------------------------------------------------------------
 const getAllContacts = (req, res) => {
-	console.log(req.time)
 	res.status(200).json({
 		status: 'success',
 		results: contacts.length,
@@ -104,5 +127,6 @@ module.exports = {
 	getContact,
 	deleteContact,
 	updateContact,
-	checkId
+	checkId,
+	checkPostForm
 }
