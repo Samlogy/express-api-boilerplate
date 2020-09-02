@@ -22,13 +22,6 @@ app.use(express.json()) // to be able to use json format in the body
 
 //-------------------------------------------------------------------------------------------
 //ROUTES middlwares
-
-// Routes  LEVEL 2
-// app.get('/api/v1/services', getAllContacts)
-//.............etc
-
-// Route  LEVEL 3 (originally here but delete for level 4 ) --> ( See routes folder ( level 4))
-
 app.use('/api/v1/contacts', contactsRouter)
 app.use('/api/v1/users', usersRouter)
 

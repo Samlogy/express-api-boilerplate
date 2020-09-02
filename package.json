@@ -1,6 +1,9 @@
 {
 	"name": "oservice-api",
-	"version": "1.0.0",
+	"version": "12.0.0",
+	"engines": {
+		"node": "12.x"
+	},
 	"description": "Api for oservice application",
 	"main": "server.js",
 	"scripts": {
@@ -15,6 +18,16 @@
 		"morgan": "^1.10.0"
 	},
 	"devDependencies": {
-		"nodemon": "^2.0.4"
+		"eslint": "^7.8.1",
+		"eslint-config-airbnb": "^18.2.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-import": "^2.22.0",
+		"eslint-plugin-jsx-a11y": "^6.3.1",
+		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-prettier": "^3.1.4",
+		"eslint-plugin-react": "^7.20.6",
+		"eslint-plugin-react-hooks": "^4.1.0",
+		"nodemon": "^2.0.4",
+		"prettier": "^2.1.1"
 	}
 }

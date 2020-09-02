@@ -1,6 +1,4 @@
-const fs = require('fs')
 // export functions
-const contacts = JSON.parse(fs.readFileSync('db.json'))
 
 const getAllUsers = (req, res) => {
 	res.status(200).json({

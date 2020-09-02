@@ -6,8 +6,7 @@ const contacts = JSON.parse(fs.readFileSync('db.json'))
 // export functions
 const checkId = (req, res, next, id) => {
 	console.log(`the id is: ${id} \n checking if it's valid...`)
-	if (id > contacts.length - 1 || id < 0)
-		return res.status(404).json({ status: 'fail', message: 'invalid id' })
+	if (id > contacts.length - 1 || id < 0) return res.status(404).json({ status: 'fail', message: 'invalid id' })
 	next()
 }
 //-------------------------------------------------------------------------------------------
@@ -18,18 +17,16 @@ const checkPostForm = (req, res, next) => {
 		if (receivedDataLength > 0) {
 			if (receivedData.firstName.length > 0 && receivedData.age.length > 0) {
 				return next()
-			} else {
-				return res.status(400).json({
-					status: 'failed',
-					message: 'empty field detected'
-				})
 			}
-		} else if (receivedDataLength == 0) {
 			return res.status(400).json({
 				status: 'failed',
-				message: 'data not received on the server'
+				message: 'empty field detected'
 			})
 		}
+		return res.status(400).json({
+			status: 'failed',
+			message: 'data not received on the server'
+		})
 	}
 	next()
 }
@@ -45,7 +42,7 @@ const getAllContacts = (req, res) => {
 //-------------------------------------------------------------------------------------------
 const getContact = (req, res) => {
 	console.log(req.params)
-	const id = parseInt(req.params.id)
+	const id = parseInt(req.params.id, 10)
 
 	res.status(201).json({
 		status: 'success',
@@ -57,12 +54,11 @@ const getContact = (req, res) => {
 }
 //-------------------------------------------------------------------------------------------
 const updateContact = (req, res) => {
-	const id = parseInt(req.params.id)
-	const firstName = req.body.firstName
-	const age = req.body.age
+	const id = parseInt(req.params.id, 10)
+	const { firstName, age } = req.body
 
 	const contactsUpdated = contacts.map((contact) => {
-		if (contact.id == id) {
+		if (contact.id === id) {
 			contact.firstName = firstName
 			contact.age = age
 		}
@@ -75,16 +71,16 @@ const updateContact = (req, res) => {
 			status: 'success',
 			result: 1,
 			data: {
-				updatedContact: contacts.find((contact) => contact.id == id)
+				updatedContact: contacts.find((contact) => contact.id === id)
 			}
 		})
 	})
 }
 //-------------------------------------------------------------------------------------------
 const deleteContact = (req, res) => {
-	const id = parseInt(req.params.id)
+	const id = parseInt(req.params.id, 10)
 
-	const contactsUpdated = contacts.filter((contact) => contact.id != id)
+	const contactsUpdated = contacts.filter((contact) => contact.id !== id)
 
 	fs.writeFile('./db.json', JSON.stringify(contactsUpdated), (err) => {
 		if (err) res.status(404).send('error occured when deleting')
@@ -99,7 +95,7 @@ const deleteContact = (req, res) => {
 }
 //-------------------------------------------------------------------------------------------
 const addContact = (req, res) => {
-	const newId = parseInt(contacts[contacts.length - 1].id) + 1
+	const newId = parseInt(contacts[contacts.length - 1].id, 10) + 1
 	const newContact = {
 		...req.body,
 		id: newId
@@ -120,6 +116,7 @@ const addContact = (req, res) => {
 		}
 	})
 }
+
 //-------------------------------------------------------------------------------------------
 module.exports = {
 	addContact,
