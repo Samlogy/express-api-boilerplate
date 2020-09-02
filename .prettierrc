@@ -5,5 +5,5 @@
 	"tabWidth": 2,
 	"semi": false,
 	"jsxSingleQuote": true,
-	"printWidth": 130
+	"printWidth": 100
 }
