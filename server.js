@@ -1,11 +1,24 @@
 //REQUIRES and CONFIG
+const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const app = require('./app')
 //---------------------------------------------------------------------------------------
-/* run dotenv.config before require app because we want to change node environment  variables first */
+/* Make sure to import dotenv before app */
 // dotenv.config({ path: './config.dev.env' }) // dev
 dotenv.config({ path: './config.prod.env' }) // prod
 //---------------------------------------------------------------------------------------
-const app = require('./app')
+// connect to mongodb database
+mongoose
+	.connect(process.env.ATLAS_DATABASE, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useCreateIndex: true,
+		useFindAndModify: false
+	})
+	.then(() => {
+		console.log('Connected to Atlas database succefully')
+	})
+
 /*-------------------------------------------------------------------------------------------------------------------------------------*/
 
 const PORT = process.env.PORT || 4000

@@ -6,14 +6,13 @@ const router = express.Router()
 
 // special middleware that runs for the id
 router.param('id', contactController.checkId) // middlware that only runs if we enter /:id route
-// router.use(contactController.checkPostForm)  // we can use checkpostform here but it is better CHAINING middlewares inside POST
 
 //-------------------------------------------------------------------------------------------
 
 router
 	.route('/')
 	.get(contactController.getAllContacts)
-	.post(contactController.checkPostForm, contactController.addContact)
+	.post(contactController.checkPostForm, contactController.addContact) // chain middlwares by passing them one after the other
 
 router
 	.route('/:id')

@@ -1,120 +1,88 @@
-const fs = require('fs')
+const Contact = require('../models/contactModel')
 //-------------------------------------------------------------------------------------------
-// fake databse
-const contacts = JSON.parse(fs.readFileSync('db.json'))
-//-------------------------------------------------------------------------------------------
-// export functions
-const checkId = (req, res, next, id) => {
-	console.log(`the id is: ${id} \n checking if it's valid...`)
-	if (id > contacts.length - 1 || id < 0) return res.status(404).json({ status: 'fail', message: 'invalid id' })
+
+// CONTROLLERS
+const checkId = (req, res, next, val) => {
 	next()
 }
 //-------------------------------------------------------------------------------------------
 const checkPostForm = (req, res, next) => {
-	const receivedDataLength = Object.keys(req.body).length
-	const receivedData = req.body
-	if (req.method === 'POST') {
-		if (receivedDataLength > 0) {
-			if (receivedData.firstName.length > 0 && receivedData.age.length > 0) {
-				return next()
-			}
-			return res.status(400).json({
-				status: 'failed',
-				message: 'empty field detected'
-			})
-		}
-		return res.status(400).json({
-			status: 'failed',
-			message: 'data not received on the server'
-		})
-	}
 	next()
 }
 
 //-------------------------------------------------------------------------------------------
-const getAllContacts = (req, res) => {
-	res.status(200).json({
-		status: 'success',
-		results: contacts.length,
-		data: contacts
-	})
+const getAllContacts = async (req, res) => {
+	try {
+		const allContacts = await Contact.find()
+		res.status(200).json({
+			status: 'success',
+			results: allContacts.length,
+			data: allContacts
+		})
+	} catch (err) {
+		res.status(400).json({
+			status: 'failed',
+			message: err
+		})
+	}
 }
 //-------------------------------------------------------------------------------------------
-const getContact = (req, res) => {
-	console.log(req.params)
-	const id = parseInt(req.params.id, 10)
+const getContact = async (req, res) => {
+	try {
+		const contact = await Contact.findById(req.params.id)
 
-	res.status(201).json({
-		status: 'success',
-		result: 1,
-		data: {
-			contact: contacts[id]
-		}
-	})
+		res.status(201).json({
+			status: 'success',
+			result: 1,
+			data: contact
+		})
+	} catch (err) {
+		res.status(400).json({
+			status: 'failed',
+			message: err
+		})
+	}
 }
 //-------------------------------------------------------------------------------------------
 const updateContact = (req, res) => {
-	const id = parseInt(req.params.id, 10)
-	const { firstName, age } = req.body
-
-	const contactsUpdated = contacts.map((contact) => {
-		if (contact.id === id) {
-			contact.firstName = firstName
-			contact.age = age
-		}
-		return contact
-	})
-
-	fs.writeFile('./db.json', JSON.stringify(contactsUpdated), (err) => {
-		if (err) res.status(404).send('error occured when updating')
-		res.status(202).json({
-			status: 'success',
-			result: 1,
-			data: {
-				updatedContact: contacts.find((contact) => contact.id === id)
-			}
-		})
-	})
-}
-//-------------------------------------------------------------------------------------------
-const deleteContact = (req, res) => {
-	const id = parseInt(req.params.id, 10)
-
-	const contactsUpdated = contacts.filter((contact) => contact.id !== id)
-
-	fs.writeFile('./db.json', JSON.stringify(contactsUpdated), (err) => {
-		if (err) res.status(404).send('error occured when deleting')
-		res.status(204).json({
-			status: 'success',
-			result: 1,
-			data: {
-				data: null
-			}
-		})
-	})
-}
-//-------------------------------------------------------------------------------------------
-const addContact = (req, res) => {
-	const newId = parseInt(contacts[contacts.length - 1].id, 10) + 1
-	const newContact = {
-		...req.body,
-		id: newId
-	}
-
-	contacts.push(newContact)
-
-	fs.writeFile('./db.json', JSON.stringify(contacts), (err) => {
-		if (err) {
-			console.log('problem happend when trying to update the file')
-		} else {
-			res.status(201).json({
+	Contact.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+		.then((updatedDoc) => {
+			return res.status(200).json({
 				status: 'success',
-				data: {
-					contact: newContact
-				}
+				data: updatedDoc
 			})
-		}
+		})
+		.catch((err) => {
+			return res.status(400).json({
+				status: 'failed',
+				message: err
+			})
+		})
+}
+//-------------------------------------------------------------------------------------------
+const deleteContact = async (req, res) => {
+	await Contact.findByIdAndRemove(req.params.id)
+	res.status(200).json({
+		status: 'success',
+		data: 'contact deleted'
 	})
+}
+//-------------------------------------------------------------------------------------------
+const addContact = async (req, res) => {
+	try {
+		const newContact = await Contact.create(req.body)
+		res.status(201).json({
+			status: 'success',
+			data: {
+				newContact_created: newContact
+			}
+		})
+	} catch (err) {
+		res.status(400).json({
+			status: 'failed',
+			message: err
+		})
+	}
 }
 
 //-------------------------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 [
-	{ "id": "0", "firstName": "azerty", "age": "39" },
-	{ "id": "1", "firstName": "lolwtf", "age": "27" },
-	{ "firstName": "aghiles", "age": "78", "id": 3 },
-	{ "firstName": "sammy", "age": "78", "id": 4 },
-	{ "firstName": "lbilot", "age": "78", "id": 5 },
-	{ "firstName": "Jone", "age": "38", "id": 6 }
+	{ "name": "azerty", "age": "39" },
+	{ "name": "lolwtf", "age": "27" },
+	{ "name": "aghiles", "age": "24", "rating": "5", "level": "999" },
+	{ "name": "sammy", "age": "25", "rating": "5", "level": "999" },
+	{ "name": "lbilot", "age": "12" },
+	{ "name": "Jone", "age": "38" }
 ]
