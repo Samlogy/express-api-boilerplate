@@ -13,7 +13,36 @@ const checkPostForm = (req, res, next) => {
 //-------------------------------------------------------------------------------------------
 const getAllContacts = async (req, res) => {
 	try {
-		const allContacts = await Contact.find()
+		// 1- Filtering mongoDB methods that comes with req.query
+		const reqQueryObject = { ...req.query }
+		const excludedQueries = ['limit', 'page', 'sort', 'fields']
+		excludedQueries.forEach((element) => delete reqQueryObject[element])
+
+		// 2- Advanced Filtering mongoDB operators
+		let reqQueryString = JSON.stringify(reqQueryObject)
+		reqQueryString = reqQueryString.replace(/\b(gte|gt|lte|lt)\b/gi, (matchedString) => `$${matchedString}`)
+
+		// 3- Query the MongoDB Database
+		let query = Contact.find(JSON.parse(reqQueryString))
+
+		// 4- Sorting
+		if (req.query.sort) {
+			const sortBy = req.query.sort.split(',').join(' ')
+			query = query.sort(sortBy)
+		} else query = query.sort('-createdAt -rating')
+
+		// 5- Limiting content
+		if (req.query.limit) query = query.limit(parseInt(req.query.limit, 10))
+		else query = query.limit(20)
+
+		// 6- Limiting fields
+		if (req.query.fields) {
+			const fields = req.query.fields.split(',').join(' ')
+			query = query.select(fields)
+		}
+
+		const allContacts = await query // await for 1,2,3,4,5
+
 		res.status(200).json({
 			status: 'success',
 			results: allContacts.length,

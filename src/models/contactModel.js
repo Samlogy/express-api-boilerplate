@@ -19,15 +19,12 @@ const contactSchema = new mongoose.Schema({
 	},
 	createdAt: {
 		type: Date,
-		default: Date.now()
+		default: Date.now(),
+		select: false // hide createdAt when responding to a request, usefull for sensitive data (password)
 	},
 	images: [String]
 })
 
-const Contact = mongoose.model(
-	'Contact',
-	(this.Schema = contactSchema),
-	(this.collection = 'contacts')
-)
+const Contact = mongoose.model('Contact', (this.Schema = contactSchema), (this.collection = 'contacts'))
 
 module.exports = Contact

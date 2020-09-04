@@ -12,10 +12,6 @@ const app = express()
 
 if (process.env.NODE_ENV === 'development') {
 	app.use(morgan('dev')) // log to the console information
-	app.use((req, res, next) => {
-		console.log('hello from the middleware')
-		next()
-	})
 }
 app.use(express.static('folder-name')) // serve static files with build in express method ( see other alternatives)
 app.use(express.json()) // to be able to use json format in the body
