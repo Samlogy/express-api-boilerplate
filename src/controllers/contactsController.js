@@ -31,17 +31,23 @@ const getAllContacts = async (req, res) => {
 			query = query.sort(sortBy)
 		} else query = query.sort('-createdAt -rating')
 
-		// 5- Limiting content
-		if (req.query.limit) query = query.limit(parseInt(req.query.limit, 10))
-		else query = query.limit(20)
-
-		// 6- Limiting fields
+		// 5- Limiting fields
 		if (req.query.fields) {
 			const fields = req.query.fields.split(',').join(' ')
 			query = query.select(fields)
 		}
 
-		const allContacts = await query // await for 1,2,3,4,5
+		// 6- Pagination and limit content
+		const page = parseInt(req.query.page, 10) || 1
+		const limit = parseInt(req.query.limit, 10) || 20
+		const skipValue = (page - 1) * limit
+		query = query.skip(skipValue).limit(limit)
+		if (req.query.page) {
+			const ContactsLength = await Contact.countDocuments()
+			if (skipValue >= ContactsLength) throw new Error('This page does not exist !') // throw will triger catch(err) immediately
+		}
+
+		const allContacts = await query // await for 1,2,3,4,5,6
 
 		res.status(200).json({
 			status: 'success',
