@@ -9,6 +9,11 @@ const checkId = (req, res, next, val) => {
 const checkPostForm = (req, res, next) => {
 	next()
 }
+const aliasTopContacts = (req, res, next) => {
+	req.query.limit = 3
+	req.query.sort = '-rating,-age'
+	next()
+}
 
 //-------------------------------------------------------------------------------------------
 const getAllContacts = async (req, res) => {
@@ -128,5 +133,6 @@ module.exports = {
 	deleteContact,
 	updateContact,
 	checkId,
-	checkPostForm
+	checkPostForm,
+	aliasTopContacts
 }

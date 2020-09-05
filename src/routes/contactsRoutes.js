@@ -14,6 +14,9 @@ router
 	.get(contactController.getAllContacts)
 	.post(contactController.checkPostForm, contactController.addContact) // chain middlwares by passing them one after the other
 
+// ALIAS route for top 5 contacts with highest rating
+router.route('/top-3-contacts').get(contactController.aliasTopContacts, contactController.getAllContacts)
+
 router
 	.route('/:id')
 	.get(contactController.getContact)
