@@ -9,16 +9,19 @@ router.param('id', contactController.checkId) // middlware that only runs if we 
 
 //-------------------------------------------------------------------------------------------
 
+// ALIAS route for top 5 contacts with highest rating
+router.route('/top-3-contacts').get(contactController.aliasTopContacts, contactController.getAllContacts)
+
+// grouping, average, min, max
+router.route('/contacts-stats').get(contactController.getContactStats)
+
+// monthly calls per year (per user also (optional))
+router.route('/monthly-calls/:year').get(contactController.getMonthlyCalls)
+
 router
 	.route('/')
 	.get(contactController.getAllContacts)
 	.post(contactController.checkPostForm, contactController.addContact) // chain middlwares by passing them one after the other
-
-// ALIAS route for top 5 contacts with highest rating
-router.route('/top-3-contacts').get(contactController.aliasTopContacts, contactController.getAllContacts)
-// grouping, average, min, max
-router.route('/contacts-stats').get(contactController.getContactStats)
-router.route('/monthly-calls/:year').get(contactController.getMonthlyCalls)
 
 router
 	.route('/:id')
