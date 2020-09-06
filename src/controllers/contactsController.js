@@ -128,6 +128,60 @@ const getContactStats = async (req, res) => {
 		})
 	}
 }
+const getMonthlyCalls = async (req, res) => {
+	try {
+		const name = 'Aghiles'
+		let { year } = req.params
+		year = parseInt(year, 10)
+		const monthlyCalls = await Contact.aggregate([
+			{
+				$unwind: '$calls'
+			},
+			{
+				$match: {
+					// all the documents collections will match this
+					calls: {
+						$gte: new Date(`${year}-01-01`),
+						$lte: new Date(`${year}-12-31`)
+					}
+				}
+			},
+			// {
+			// 	$match: {
+			// 		name: { $eq: name }
+			// 	}
+			// },
+			{
+				$group: {
+					_id: { $month: '$calls' },
+					number_calls: { $sum: 1 },
+					names: { $push: '$name' }
+				}
+			},
+			{
+				$addFields: { month: '$_id' }
+			},
+			{
+				$project: { _id: 0 } // delete _id from the group to replace it with month
+			},
+			{
+				$sort: { number_calls: -1 }
+			},
+			{
+				$limit: 12 // limit the number of documents to get from the database
+			}
+		])
+		res.status(200).json({
+			status: 'success',
+			data: { monthlyCalls }
+		})
+	} catch (err) {
+		res.status(400).json({
+			status: 'fail',
+			message: err
+		})
+	}
+}
 
 //-------------------------------------------------------------------------------------------
 module.exports = {
@@ -139,5 +193,6 @@ module.exports = {
 	checkId,
 	checkPostForm,
 	aliasTopContacts,
-	getContactStats
+	getContactStats,
+	getMonthlyCalls
 }

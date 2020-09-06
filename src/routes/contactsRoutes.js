@@ -18,6 +18,8 @@ router
 router.route('/top-3-contacts').get(contactController.aliasTopContacts, contactController.getAllContacts)
 // grouping, average, min, max
 router.route('/contacts-stats').get(contactController.getContactStats)
+router.route('/monthly-calls/:year').get(contactController.getMonthlyCalls)
+
 router
 	.route('/:id')
 	.get(contactController.getContact)

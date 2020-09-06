@@ -21,6 +21,7 @@ const contactSchema = new mongoose.Schema({
 		type: Number,
 		required: false
 	},
+	calls: [Date],
 	createdAt: {
 		type: Date,
 		default: Date.now(),
