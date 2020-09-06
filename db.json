@@ -1,8 +1,8 @@
 [
-	{ "name": "azerty", "age": "39" },
-	{ "name": "lolwtf", "age": "27" },
-	{ "name": "aghiles", "age": "24", "rating": "5", "level": "999" },
-	{ "name": "sammy", "age": "25", "rating": "5", "level": "999" },
-	{ "name": "lbilot", "age": "12" },
-	{ "name": "Jone", "age": "38" }
+	{ "name": "azerty", "age": "39", "difficulty": "medium" },
+	{ "name": "lolwtf", "age": "27", "difficulty": "easy" },
+	{ "name": "Aghiles", "age": "24", "rating": "5", "level": "999", "difficulty": "Hard" },
+	{ "name": "Axibord", "age": "25", "rating": "5", "level": "999", "difficulty": "Hard" },
+	{ "name": "lbilot", "age": "12", "difficulty": "medium" },
+	{ "name": "Jone", "age": "38", "difficulty": "easy" }
 ]

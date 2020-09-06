@@ -8,6 +8,10 @@ const contactSchema = new mongoose.Schema({
 		trim: true
 	},
 	age: Number,
+	difficulty: {
+		type: String,
+		required: [true, 'choose a difficulty']
+	},
 	rating: {
 		type: Number,
 		default: 3,

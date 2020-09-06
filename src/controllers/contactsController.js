@@ -95,6 +95,39 @@ const addContact = async (req, res) => {
 		})
 	}
 }
+const getContactStats = async (req, res) => {
+	try {
+		const stats = await Contact.aggregate([
+			{
+				$match: { age: { $gte: 18 } }
+			},
+			{
+				$group: {
+					_id: { $toUpper: '$difficulty' },
+					numContacts: { $sum: 1 },
+					avgRating: { $avg: '$rating' },
+					minAge: { $min: '$age' },
+					maxAge: { $max: '$age' }
+				}
+			},
+			{
+				$sort: { minAge: -1 } // sort the results in ascending(1) or descending(-1) order
+			},
+			{
+				$match: { _id: { $ne: 'EASY' } } // chain match the result for the second time (ne: "not equal")
+			}
+		])
+		res.status(200).json({
+			status: 'success',
+			data: { stats }
+		})
+	} catch (err) {
+		res.status(400).json({
+			status: 'fail',
+			message: err
+		})
+	}
+}
 
 //-------------------------------------------------------------------------------------------
 module.exports = {
@@ -105,5 +138,6 @@ module.exports = {
 	updateContact,
 	checkId,
 	checkPostForm,
-	aliasTopContacts
+	aliasTopContacts,
+	getContactStats
 }
