@@ -130,7 +130,6 @@ const getContactStats = async (req, res) => {
 }
 const getMonthlyCalls = async (req, res) => {
 	try {
-		const name = 'Aghiles'
 		let { year } = req.params
 		year = parseInt(year, 10)
 		const monthlyCalls = await Contact.aggregate([
@@ -148,7 +147,7 @@ const getMonthlyCalls = async (req, res) => {
 			},
 			// {
 			// 	$match: {
-			// 		name: { $eq: name }
+			// 		name: { $eq: 'Aghiles' }
 			// 	}
 			// },
 			{

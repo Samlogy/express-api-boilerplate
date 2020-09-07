@@ -11,28 +11,43 @@ const contactSchema = new mongoose.Schema(
 			unique: [true, 'Duplicated name not allowed'],
 			trim: true // remove spaces
 		},
+
 		age: Number,
+
 		difficulty: {
 			type: String,
 			required: [true, 'choose a difficulty']
 		},
+
 		rating: {
 			type: Number,
 			default: 3,
 			required: [true, 'the rating is required']
 		},
+
 		level: {
 			type: Number,
 			required: false
 		},
+
 		calls: [Date],
+
 		createdAt: {
 			type: Date,
 			default: Date.now(),
 			select: false // hide createdAt when responding to a request, usefull for sensitive data (password)
 		},
+
 		images: [String],
-		slug: String
+
+		secretContact: {
+			type: Boolean,
+			default: false
+		},
+
+		slug: String,
+
+		startTimerReq: Date
 	},
 	{
 		toJSON: { virtuals: true }, // enable virtula propreties to be rendered
@@ -47,6 +62,7 @@ contactSchema.virtual('numOfCalls').get(function () {
 })
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+// Document MIDDLEWARES
 // Document MIDDLEWARE: runs before .save() or .create() ONLY
 contactSchema.pre('save', function (next) {
 	this.slug = slugify(this.name, { lower: true }) // "this" keyword have acces to the document before the save to database so we can modify it
@@ -59,6 +75,15 @@ contactSchema.post('save', function (doc, next) {
 	next()
 })
 
+// Query MIDDLEWARES like (find())
+contactSchema.pre(/^find/, function (next) {
+	this.find({ secretContact: { $ne: true } })
+	next()
+})
+contactSchema.post(/^find/, function (docs, next) {
+	console.log(`Query filtred succefully`)
+	next()
+})
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 // Define the Contact Model
