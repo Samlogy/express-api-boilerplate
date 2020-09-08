@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const slugify = require('slug')
+const validator = require('validator')
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -9,25 +10,49 @@ const contactSchema = new mongoose.Schema(
 			type: String,
 			required: [true, 'The name is required'],
 			unique: [true, 'Duplicated name not allowed'],
-			trim: true // remove spaces
+			trim: true, // remove spaces,
+			maxlength: [20, 'A contact name must have less or equal that 20 characters'],
+			minlength: [3, 'A contact name must have less or equal that 3 characters']
+		},
+		email: {
+			type: String,
+			validate: [validator.isEmail, 'Enter a valid email'] // custom validator using 3rd party library
 		},
 
 		age: Number,
 
 		difficulty: {
 			type: String,
-			required: [true, 'choose a difficulty']
+			required: [true, 'A contact must have a difficulty'],
+			enum: {
+				// validator for strings
+				values: ['easy', 'medium', 'Hard'],
+				message: 'Difficulty is either: easy, medium or Hard'
+			}
 		},
 
 		rating: {
 			type: Number,
 			default: 3,
-			required: [true, 'the rating is required']
+			required: [true, 'the rating is required'],
+			min: [1, 'Must be greater or equal to 1'],
+			max: [5, 'Must be less or equal to 5']
 		},
 
 		level: {
 			type: Number,
-			required: false
+			required: false,
+			min: [1, 'Must be greater or equal to 1'],
+			max: [999, 'Must be less or equal to 999'],
+			validate: {
+				// custom validator ("val" argument is value of this field 'level' in this case)
+				// custom validator does NOT work for UPDATE queries
+				validator: function (val) {
+					// write custom validator using Regex or anything else then return true and false
+					return true
+				},
+				message: 'Your rating is too low'
+			}
 		},
 
 		calls: [Date],
@@ -45,9 +70,7 @@ const contactSchema = new mongoose.Schema(
 			default: false
 		},
 
-		slug: String,
-
-		startTimerReq: Date
+		slug: String
 	},
 	{
 		toJSON: { virtuals: true }, // enable virtula propreties to be rendered
@@ -84,6 +107,16 @@ contactSchema.post(/^find/, function (docs, next) {
 	console.log(`Query filtred succefully`)
 	next()
 })
+
+// Aggregation MIDDLWARES (this.pipeline() return the aggregation pipeline(type: Array) so we can add to it more aggragations)
+contactSchema.pre('aggregate', function (next) {
+	this.pipeline().unshift({
+		$match: { secretContact: { $ne: true } }
+	})
+
+	next()
+})
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 
 // Define the Contact Model

@@ -56,7 +56,10 @@ const getContact = async (req, res) => {
 }
 //-------------------------------------------------------------------------------------------
 const updateContact = (req, res) => {
-	Contact.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+	Contact.findByIdAndUpdate(req.params.id, req.body, {
+		new: true,
+		runValidators: true // check Model to validate the changes
+	})
 		.then((updatedDoc) => {
 			return res.status(200).json({
 				status: 'success',
