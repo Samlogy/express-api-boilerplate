@@ -2,6 +2,8 @@ const express = require('express')
 const morgan = require('morgan')
 const contactsRouter = require('./src/routes/contactsRoutes')
 const usersRouter = require('./src/routes/usersRoutes')
+const AppError = require('./src/utils/appError')
+const globalErrorHandler = require('./src/controllers/errorController')
 //-------------------------------------------------------------------------------------------
 
 // declare express
@@ -23,12 +25,15 @@ app.use('/api/v1/users', usersRouter)
 
 // handle inexistant routes
 app.all('*', (req, res, next) => {
-	res.status(404).json({
-		status: 'fail',
-		message: `the url ${req.originalUrl} is not found`
-	})
-	next()
+	// const err = new Error(`the url ${req.originalUrl} is not found`)
+	// err.status = 'fail'
+	// err.statusCode = 404
+
+	next(new AppError(`the url ${req.originalUrl} is not found`, 404)) // if we pass something to next() express will assume it is an error object and call Global error handling middlware immedialtly
 })
+
+// Global Error handling middleware
+app.use(globalErrorHandler)
 
 //-------------------------------------------------------------------------------------------
 
