@@ -47,6 +47,7 @@ const contactSchema = new mongoose.Schema(
 			validate: {
 				// custom validator ("val" argument is value of this field 'level' in this case)
 				// custom validator does NOT work for UPDATE queries
+				// we have access to the value with "val" argument
 				validator: function (val) {
 					// write custom validator using Regex or anything else then return true and false
 					return true

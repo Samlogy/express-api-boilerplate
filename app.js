@@ -17,9 +17,18 @@ app.use(express.static('folder-name')) // serve static files with build in expre
 app.use(express.json()) // to be able to use json format in the body
 
 //-------------------------------------------------------------------------------------------
-//ROUTES middlwares
+//ROUTES
 app.use('/api/v1/contacts', contactsRouter)
 app.use('/api/v1/users', usersRouter)
+
+// handle inexistant routes
+app.all('*', (req, res, next) => {
+	res.status(404).json({
+		status: 'fail',
+		message: `the url ${req.originalUrl} is not found`
+	})
+	next()
+})
 
 //-------------------------------------------------------------------------------------------
 
