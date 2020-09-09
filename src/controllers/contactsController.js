@@ -1,6 +1,7 @@
 const Contact = require('../models/contactModel')
 const ApiFeatures = require('../utils/apiFeatures')
 const catchAsyncError = require('../utils/catchAsyncError')
+const AppError = require('../utils/appError')
 //-------------------------------------------------------------------------------------------
 
 // CONTROLLERS
@@ -18,7 +19,7 @@ const aliasTopContacts = (req, res, next) => {
 }
 
 //-------------------------------------------------------------------------------------------
-const getAllContacts = catchAsyncError(async (req, res) => {
+const getAllContacts = catchAsyncError(async (req, res, next) => {
 	// Execute QUERY and apply
 	const data = new ApiFeatures(Contact.find(), req.query)
 	data.filter().limitingFields().sort().limitContentAndOrPagination()
@@ -32,8 +33,11 @@ const getAllContacts = catchAsyncError(async (req, res) => {
 	})
 })
 //-------------------------------------------------------------------------------------------
-const getContact = catchAsyncError(async (req, res) => {
+const getContact = catchAsyncError(async (req, res, next) => {
 	const contact = await Contact.findById(req.params.id)
+
+	// check if not null to send global error to the handler
+	if (!contact) return next(new AppError('No contact found with that ID', 404))
 
 	res.status(201).json({
 		status: 'success',
@@ -42,19 +46,27 @@ const getContact = catchAsyncError(async (req, res) => {
 	})
 })
 //-------------------------------------------------------------------------------------------
-const updateContact = catchAsyncError(async (req, res) => {
+const updateContact = catchAsyncError(async (req, res, next) => {
 	const updatedDoc = await Contact.findByIdAndUpdate(req.params.id, req.body, {
 		new: true,
 		runValidators: true // check Model to validate the changes
 	})
+
+	// check if not null to send global error to the handler
+	if (!updatedDoc) return next(new AppError('No contact found with that ID', 404))
+
 	res.status(200).json({
 		status: 'success',
 		data: updatedDoc
 	})
 })
 //-------------------------------------------------------------------------------------------
-const deleteContact = catchAsyncError(async (req, res) => {
-	await Contact.findByIdAndRemove(req.params.id)
+const deleteContact = catchAsyncError(async (req, res, next) => {
+	const contact = await Contact.findByIdAndRemove(req.params.id)
+
+	// check if not null to send global error to the handler
+	if (!contact) return next(new AppError('No contact found with that ID', 404))
+
 	res.status(200).json({
 		status: 'success',
 		data: 'contact deleted'
@@ -73,7 +85,7 @@ const addContact = catchAsyncError(async (req, res, next) => {
 })
 //-------------------------------------------------------------------------------------------
 
-const getContactStats = catchAsyncError(async (req, res) => {
+const getContactStats = catchAsyncError(async (req, res, next) => {
 	const stats = await Contact.aggregate([
 		{
 			$match: { age: { $gte: 18 } }
@@ -102,7 +114,7 @@ const getContactStats = catchAsyncError(async (req, res) => {
 
 //-------------------------------------------------------------------------------------------
 
-const getMonthlyCalls = catchAsyncError(async (req, res) => {
+const getMonthlyCalls = catchAsyncError(async (req, res, next) => {
 	let { year } = req.params
 	year = parseInt(year, 10)
 	const monthlyCalls = await Contact.aggregate([
