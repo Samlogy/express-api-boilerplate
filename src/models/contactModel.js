@@ -101,11 +101,11 @@ contactSchema.post('save', function (doc, next) {
 
 // Query MIDDLEWARES like (find())
 contactSchema.pre(/^find/, function (next) {
-	this.find({ secretContact: { $ne: true } })
+	// this.find({ secretContact: { $ne: true } })
 	next()
 })
 contactSchema.post(/^find/, function (docs, next) {
-	console.log(`Query filtred succefully`)
+	// console.log(`Query filtred succefully`)
 	next()
 })
 

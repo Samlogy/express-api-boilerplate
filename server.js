@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 //---------------------------------------------------------------------------------------
 /* Make sure to import dotenv before app */
-dotenv.config({ path: './config.dev.env' }) // dev
+dotenv.config({ path: './config.env' }) // dev
 // dotenv.config({ path: './config.prod.env' }) // prod
 //---------------------------------------------------------------------------------------
 const app = require('./app')

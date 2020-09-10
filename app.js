@@ -23,18 +23,18 @@ app.use(express.json()) // to be able to use json format in the body
 app.use('/api/v1/contacts', contactsRouter)
 app.use('/api/v1/users', usersRouter)
 
+//-------------------------------------------------------------------------------------------
+
 // handle inexistant routes
 app.all('*', (req, res, next) => {
-	// const err = new Error(`the url ${req.originalUrl} is not found`)
-	// err.status = 'fail'
-	// err.statusCode = 404
-
-	next(new AppError(`the url ${req.originalUrl} is not found`, 404)) // if we pass something to next() express will assume it is an error object and call Global error handling middlware immedialtly
+	// if we pass something to next() express will assume it is an error object and call Global error handling middlware immedialtly
+	next(new AppError(`the url ${req.originalUrl} is not found`, 404))
 })
 
+//-------------------------------------------------------------------------------------------
 // Global Error handling middleware
 app.use(globalErrorHandler)
 
 //-------------------------------------------------------------------------------------------
-
+//EXPORTS
 module.exports = app
