@@ -32,6 +32,7 @@ const getAllContacts = catchAsyncError(async (req, res, next) => {
 		data: contacts
 	})
 })
+
 //-------------------------------------------------------------------------------------------
 const getContact = catchAsyncError(async (req, res, next) => {
 	const contact = await Contact.findById(req.params.id)
