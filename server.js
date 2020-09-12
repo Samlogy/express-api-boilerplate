@@ -27,7 +27,7 @@ const server = app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}... 🔊 CTRL+C to stop.`)
 })
 
-// global Unhandled errors rejections from promises
+// global Unhandled errors rejections from promises OUTSIDE express
 process.on('unhandledRejection', (err) => {
 	console.log(err.stack, err.name, err.message)
 	server.close(() => {

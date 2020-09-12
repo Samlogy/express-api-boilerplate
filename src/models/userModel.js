@@ -25,11 +25,13 @@ const userSchema = new mongoose.Schema({
 	password: {
 		type: String,
 		required: [true, 'please enter your password'],
-		minlength: [6, 'The minimum required length is 6 characters']
+		minlength: [6, 'The minimum required length is 6 characters'],
+		select: false // very important : not show in any request
 	},
 	passwordConfirm: {
 		type: String,
 		required: [true, 'please confirm your password'],
+		select: false, // very important : not show in any request
 		validate: {
 			validator: function (val) {
 				if (this.password === val) return true
@@ -47,6 +49,11 @@ userSchema.pre('save', function (next) {
 	// call next middlware
 	next()
 })
+
+// create method accessible in every mongodb document
+userSchema.methods.checkPassword = async function (candidatePassword, userPassword) {
+	return await bcrypt.compare(candidatePassword, userPassword)
+}
 
 const User = mongoose.model('User', (this.schema = userSchema), (this.collection = 'users'))
 
