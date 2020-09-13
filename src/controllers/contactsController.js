@@ -9,9 +9,7 @@ const checkId = (req, res, next, val) => {
 	next()
 }
 //-------------------------------------------------------------------------------------------
-const checkPostForm = (req, res, next) => {
-	next()
-}
+
 const aliasTopContacts = (req, res, next) => {
 	req.query.limit = 3
 	req.query.sort = '-rating,-age'
@@ -54,7 +52,7 @@ const updateContact = catchAsyncError(async (req, res, next) => {
 	})
 
 	// check if not null to send global error to the handler
-	if (!updatedDoc) return next(new AppError('No contact found with that ID', 404))
+	if (!updatedDoc) return next(new AppError('No contact found with that ID', 401))
 
 	res.status(200).json({
 		status: 'success',
@@ -170,7 +168,6 @@ module.exports = {
 	deleteContact,
 	updateContact,
 	checkId,
-	checkPostForm,
 	aliasTopContacts,
 	getContactStats,
 	getMonthlyCalls

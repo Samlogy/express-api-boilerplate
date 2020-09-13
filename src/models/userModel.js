@@ -39,7 +39,8 @@ const userSchema = new mongoose.Schema({
 			},
 			message: 'password do not match, please enter your password again.'
 		}
-	}
+	},
+	passwordModifiedAt: Date
 })
 
 userSchema.pre('save', function (next) {
@@ -49,10 +50,22 @@ userSchema.pre('save', function (next) {
 	// call next middlware
 	next()
 })
-
+userSchema.pre('findOneAndUpdate', function (next) {
+	this.set({ passwordModifiedAt: new Date() })
+	next()
+})
 // create method accessible in every mongodb document
 userSchema.methods.checkPassword = async function (candidatePassword, userPassword) {
 	return await bcrypt.compare(candidatePassword, userPassword)
+}
+
+userSchema.methods.checkModifiedPassword = async function (tokenTimeCreation) {
+	if (this.passwordModifiedAt) {
+		const passwordTimeModifAt = parseInt(this.passwordModifiedAt.getTime() / 1000, 10)
+
+		if (passwordTimeModifAt < tokenTimeCreation) return true
+	}
+	return false
 }
 
 const User = mongoose.model('User', (this.schema = userSchema), (this.collection = 'users'))

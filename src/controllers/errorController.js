@@ -24,23 +24,27 @@ const sendErrorProd = (err, res) => {
 		})
 	}
 }
-
 const handleCastErrorDB = (error) => {
 	const message = `Invalid ${error.path}: ${error.value}`
 	return new AppError(message, 400)
 }
-
 const handleDuplicateFields = (error) => {
 	const message = `Duplicate field value: -${error.keyValue.name}- choose another one`
 	return new AppError(message, 400)
 }
-
 const handleValidationError = (error) => {
 	const errors = Object.values(error.errors).map((item) => item.message) // iterate over error object to get all the messages
 	const message = `Invalid input: ${errors.join(', ')}`
 	return new AppError(message, 400)
 }
-
+const handleJWTError = (err) => {
+	const message = `${err.message}, please login again.`
+	return new AppError(message, 401)
+}
+const handleJWTExpiredError = (err) => {
+	const message = `${err.message}, session expired, please login again.`
+	return new AppError(message, 401)
+}
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 // Global error Handler middleware (by passing 4 arguments express automaticly assume it's a Global error )
@@ -59,6 +63,8 @@ const globalErrorHandler = (err, req, res, next) => {
 		if (error.name === 'CastError') error = handleCastErrorDB(error)
 		if (error.code === 11000) error = handleDuplicateFields(error)
 		if (error._message === 'Validation failed') error = handleValidationError(error)
+		if (error.name === 'JsonWebTokenError') error = handleJWTError(error)
+		if (error.name === 'TokenExpiredError') error = handleJWTExpiredError(error)
 		sendErrorProd(error, res)
 	}
 }

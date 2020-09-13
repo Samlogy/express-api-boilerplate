@@ -1,5 +1,6 @@
 const express = require('express')
 const contactController = require('../controllers/contactsController.js')
+const authController = require('../controllers/authController')
 //-------------------------------------------------------------------------------------------
 // declare scoped mini-router
 const router = express.Router()
@@ -18,10 +19,7 @@ router.route('/contacts-stats').get(contactController.getContactStats)
 // monthly calls per year (per user also (optional))
 router.route('/monthly-calls/:year').get(contactController.getMonthlyCalls)
 
-router
-	.route('/')
-	.get(contactController.getAllContacts)
-	.post(contactController.checkPostForm, contactController.addContact) // chain middlwares by passing them one after the other
+router.route('/').get(authController.checkAccess, contactController.getAllContacts).post(contactController.addContact) // chain middlwares by passing them one after the other
 
 router
 	.route('/:id')

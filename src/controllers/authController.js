@@ -47,12 +47,40 @@ exports.login = async (req, res, next) => {
 
 			res.status(200).json({
 				status: 'success',
-				token: token,
-				userId: userMatched._id
+				token: token // the id is inside  the token
 			})
 		} else {
 			return next(new AppError('Incorrect email or password, please try again.', 401))
 		}
+	} catch (err) {
+		next(err)
+	}
+}
+
+exports.checkAccess = async (req, res, next) => {
+	try {
+		let token
+		// get token from client
+		if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+			token = req.headers.authorization.split(' ')[1]
+		} else return next(new AppError('You are not loged in, please login to get access', 401))
+
+		// verify token
+		jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+			if (decoded) {
+				// check if the user still exists
+				const user = await User.findById(decoded.id)
+				if (!user) return next(new AppError('The user of this token no longer exist.', 401))
+
+				if (!(await user.checkModifiedPassword(decoded.iat)))
+					return next(new AppError('Token has been change due to recent user update', 401))
+
+				console.log('Acces garanteed')
+				next()
+			} else {
+				next(err)
+			}
+		})
 	} catch (err) {
 		next(err)
 	}
