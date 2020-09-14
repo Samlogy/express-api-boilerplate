@@ -72,8 +72,8 @@ exports.checkAccess = async (req, res, next) => {
 				const user = await User.findById(decoded.id)
 				if (!user) return next(new AppError('The user of this token no longer exist.', 401))
 
-				if (!(await user.checkModifiedPassword(decoded.iat)))
-					return next(new AppError('Token has been change due to recent user update', 401))
+				if (!(await user.checkPasswordTime(decoded.iat)))
+					return next(new AppError('Token has been changed due to recent user update', 401))
 
 				console.log('Acces garanteed')
 				next()

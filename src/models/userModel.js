@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 
+//--------------------------------------------------------------------------------------------
 const userSchema = new mongoose.Schema({
 	name: {
 		type: String,
@@ -42,7 +43,8 @@ const userSchema = new mongoose.Schema({
 	},
 	passwordModifiedAt: Date
 })
-
+//--------------------------------------------------------------------------------------------
+// Middlewares
 userSchema.pre('save', function (next) {
 	// isModified is a mongoose method to check only modified filelds
 	if (!this.isModified('password')) return next()
@@ -54,20 +56,22 @@ userSchema.pre('findOneAndUpdate', function (next) {
 	this.set({ passwordModifiedAt: new Date() })
 	next()
 })
+//--------------------------------------------------------------------------------------------
+// Methods
 // create method accessible in every mongodb document
 userSchema.methods.checkPassword = async function (candidatePassword, userPassword) {
 	return await bcrypt.compare(candidatePassword, userPassword)
 }
 
-userSchema.methods.checkModifiedPassword = async function (tokenTimeCreation) {
+userSchema.methods.checkPasswordTime = async function (tokenTimeCreation) {
 	if (this.passwordModifiedAt) {
 		const passwordTimeModifAt = parseInt(this.passwordModifiedAt.getTime() / 1000, 10)
 
-		if (passwordTimeModifAt < tokenTimeCreation) return true
+		return !passwordTimeModifAt < tokenTimeCreation
 	}
-	return false
+	return true
 }
-
+//--------------------------------------------------------------------------------------------
 const User = mongoose.model('User', (this.schema = userSchema), (this.collection = 'users'))
 
 module.exports = User
