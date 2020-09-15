@@ -7,6 +7,6 @@ const router = express.Router()
 router.route('/signup').post(authController.signup)
 router.route('/login').post(authController.login)
 
-router.route('/:id').patch(usersController.updateUser)
+router.route('/:id').patch(authController.checkAccess, usersController.updateUser)
 
 module.exports = router
