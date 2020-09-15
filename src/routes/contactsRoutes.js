@@ -25,7 +25,7 @@ router
 	.route('/:id')
 	.get(contactController.getContact)
 	.patch(contactController.updateContact)
-	.delete(contactController.deleteContact)
+	.delete(authController.checkAccess, authController.restrictTo('admin', 'lead-admin'), contactController.deleteContact)
 //-------------------------------------------------------------------------------------------
 
 module.exports = router

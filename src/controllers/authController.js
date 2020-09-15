@@ -75,7 +75,9 @@ exports.checkAccess = async (req, res, next) => {
 				if (!(await user.checkPasswordTime(decoded.iat)))
 					return next(new AppError('Token has been changed due to recent user update', 401))
 
-				console.log('Acces garanteed')
+				// add the user to the request.user object
+				req.user = user
+
 				next()
 			} else {
 				next(err)
@@ -83,5 +85,16 @@ exports.checkAccess = async (req, res, next) => {
 		})
 	} catch (err) {
 		next(err)
+	}
+}
+
+// we want to pass arguments to restrictTo function so we create a wrapper function
+exports.restrictTo = (...roles) => {
+	return (req, res, next) => {
+		// roles is an array like ['admin','lead-admin']
+		if (!roles.includes(req.user.role)) {
+			return next(new AppError('You do not have permission, need admin privilege.', 403))
+		}
+		next()
 	}
 }

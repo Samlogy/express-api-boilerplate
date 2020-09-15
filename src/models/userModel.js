@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		validate: [validator.isURL, 'not a valid URL']
 	},
+	role: {
+		type: String,
+		enum: ['user', 'admin', 'lead-admin'],
+		default: 'user'
+	},
 	password: {
 		type: String,
 		required: [true, 'please enter your password'],
