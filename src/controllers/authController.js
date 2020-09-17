@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 const AppError = require('../utils/appError')
+const sendEmail = require('../utils/sendEmail')
 
 exports.signup = async (req, res, next) => {
 	try {
@@ -22,7 +23,7 @@ exports.signup = async (req, res, next) => {
 			}
 		})
 	} catch (err) {
-		next(err)
+		return next(err)
 	}
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ exports.login = async (req, res, next) => {
 			return next(new AppError('Incorrect email or password, please try again.', 401))
 		}
 	} catch (err) {
-		next(err)
+		return next(err)
 	}
 }
 
@@ -78,13 +79,12 @@ exports.checkAccess = async (req, res, next) => {
 				// add the user to the request.user object
 				req.user = user
 
-				next()
-			} else {
-				next(err)
+				return next()
 			}
+			return next(err)
 		})
 	} catch (err) {
-		next(err)
+		return next(err)
 	}
 }
 
@@ -95,6 +95,40 @@ exports.restrictTo = (...roles) => {
 		if (!roles.includes(req.user.role)) {
 			return next(new AppError('You do not have permission, need admin privilege.', 403))
 		}
-		next()
+		return next()
 	}
 }
+
+exports.forgotPassword = async (req, res, next) => {
+	try {
+		// 1- get user based on POSTED email
+		const user = await User.findOne({ email: req.body.email })
+		if (!user) return next(new AppError('No user found with this email, please try another one.', 404))
+
+		// 2- generale random reset token and save the modifications to database
+		const resetToken = user.createPasswordResetToken()
+		// save modif to mongodb
+		await user.save([{ validateBeforeSave: false }])
+		// 3- send it to user email
+		const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
+		await sendEmail({
+			email: user.email,
+			message: `forgot your password, submit new password in the next 10 minutes \n Password reset link : ${resetURL}`,
+			subject: 'Naise support password reset'
+		})
+
+		res.status(200).json({
+			status: 'success',
+			message: 'Reset password token sent to user email.'
+		})
+	} catch (err) {
+		const user = await User.findOne({ email: req.body.email })
+		user.passwordResetToken = undefined
+		user.passwordResetTokenExpires = undefined
+		await user.save()
+
+		return next(new AppError('There is an error trying to reset password, please try again later', 500))
+	}
+}
+
+exports.resetPassword = (req, res, next) => {}

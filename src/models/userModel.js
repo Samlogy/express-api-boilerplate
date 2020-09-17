@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
@@ -46,7 +47,9 @@ const userSchema = new mongoose.Schema({
 			message: 'password do not match, please enter your password again.'
 		}
 	},
-	passwordModifiedAt: Date
+	passwordModifiedAt: Date,
+	passwordResetToken: String,
+	passwordResetTokenExpires: Date
 })
 //--------------------------------------------------------------------------------------------
 // Middlewares
@@ -75,6 +78,16 @@ userSchema.methods.checkPasswordTime = async function (tokenTimeCreation) {
 		return !passwordTimeModifAt < tokenTimeCreation
 	}
 	return true
+}
+userSchema.methods.createPasswordResetToken = function () {
+	// create token to sent to the user
+	const resetToken = crypto.randomBytes(32).toString('hex')
+	// hash token
+	this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+	// make the token expires 10 minutes
+	this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000
+
+	return resetToken
 }
 //--------------------------------------------------------------------------------------------
 const User = mongoose.model('User', (this.schema = userSchema), (this.collection = 'users'))
