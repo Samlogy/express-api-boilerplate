@@ -53,17 +53,13 @@ const userSchema = new mongoose.Schema({
 })
 //--------------------------------------------------------------------------------------------
 // Middlewares
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function (next) {
 	// isModified is a mongoose method to check only modified filelds
 	if (!this.isModified('password')) return next()
-	this.password = bcrypt.hash(this.password, 12).then((this.passwordConfirm = undefined))
-	// call next middlware
+	this.password = await bcrypt.hash(this.password, 12).then((this.passwordConfirm = undefined))
 	next()
 })
-userSchema.pre('findOneAndUpdate', function (next) {
-	this.set({ passwordModifiedAt: new Date() })
-	next()
-})
+
 //--------------------------------------------------------------------------------------------
 // Methods
 // create method accessible in every mongodb document
