@@ -146,7 +146,6 @@ exports.resetPassword = async (req, res, next) => {
 			user.passwordConfirm = passwordConfirm
 			user.passwordResetToken = undefined
 			user.passwordResetTokenExpires = undefined
-			user.passwordModifiedAt = new Date()
 		} else return next(new AppError('Password reset token expired', 400))
 		// 3) update password
 		await user.save()

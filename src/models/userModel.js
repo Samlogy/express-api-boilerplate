@@ -57,6 +57,7 @@ userSchema.pre('save', async function (next) {
 	// isModified is a mongoose method to check only modified filelds
 	if (!this.isModified('password')) return next()
 	this.password = await bcrypt.hash(this.password, 12).then((this.passwordConfirm = undefined))
+	this.passwordModifiedAt = new Date()
 	next()
 })
 
