@@ -164,3 +164,32 @@ exports.resetPassword = async (req, res, next) => {
 		return next(err)
 	}
 }
+
+exports.updatePassword = async (req, res, next) => {
+	try {
+		// check if all fields have been submited by the user
+		const { currentPassword, newPassword, newPasswordConfirm } = req.body
+
+		if (!currentPassword || !newPassword || !newPasswordConfirm)
+			return next(new AppError('Please enter the 3 required fields'))
+		// 1- get user from database collection
+		const user = await User.findOne({ _id: req.user._id }).select('+password')
+
+		// 2- check if current POSTED password is correct
+		if (!user.checkPassword(currentPassword, user.password)) return next(new AppError('invalid password', 401))
+		user.password = newPassword
+		user.passwordConfirm = newPasswordConfirm
+		await user.save()
+
+		// 3- send user new JWT token
+		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+			expiresIn: process.env.JWT_EXPIRES_IN
+		})
+		res.status(200).json({
+			status: 'success',
+			token: token
+		})
+	} catch (err) {
+		return next(err)
+	}
+}
