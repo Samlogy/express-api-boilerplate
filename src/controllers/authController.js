@@ -144,12 +144,14 @@ exports.resetPassword = async (req, res, next) => {
 		if (Date.now() - user.passwordResetTokenExpires <= 10) {
 			user.password = password
 			user.passwordConfirm = passwordConfirm
+			user.passwordResetToken = undefined
+			user.passwordResetTokenExpires = undefined
 			user.passwordModifiedAt = new Date()
 		} else return next(new AppError('Password reset token expired', 400))
 		// 3) update password
 		await user.save()
 
-		// 4) log user, send JWT token
+		// 4) log user by sending JWT token
 		const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
 			expiresIn: process.env.JWT_EXPIRES_IN
 		})
