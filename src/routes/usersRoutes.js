@@ -10,6 +10,7 @@ router.route('/forgot-password').post(authController.forgotPassword)
 router.route('/reset-password/:token').patch(authController.resetPassword)
 router.route('/update-password').patch(authController.checkAccess, authController.updatePassword)
 
-router.route('/:id').patch(authController.checkAccess, usersController.updateUser)
+router.route('/update').patch(authController.checkAccess, usersController.updateUser)
+router.route('/deleteMyAccount').delete(authController.checkAccess, usersController.deleteUser)
 
 module.exports = router

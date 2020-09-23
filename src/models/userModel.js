@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
 			message: 'password do not match, please enter your password again.'
 		}
 	},
+	active: {
+		type: Boolean,
+		default: true,
+		select: false
+	},
 	passwordModifiedAt: Date,
 	passwordResetToken: String,
 	passwordResetTokenExpires: Date
@@ -58,6 +63,12 @@ userSchema.pre('save', async function (next) {
 	if (!this.isModified('password')) return next()
 	this.password = await bcrypt.hash(this.password, 12).then((this.passwordConfirm = undefined))
 	this.passwordModifiedAt = new Date()
+	next()
+})
+
+// prevent from using the token to change data, login...etc
+userSchema.pre(/^find/, function (next) {
+	this.find({ active: { $ne: false } })
 	next()
 })
 
