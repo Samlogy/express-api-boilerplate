@@ -4,6 +4,27 @@ const User = require('../models/userModel')
 const AppError = require('../utils/appError')
 const sendEmail = require('../utils/sendEmail')
 
+const createSendToken = (user, statusCode, res) => {
+	// create token
+	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
+	// set cookie options
+	const cookieOptions = {
+		expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+		httpOnly: true
+	}
+	// encryp the cookie for production mode
+	if (process.env.NODE_ENV === 'production') cookieOptions.secure = true
+
+	// send cookie to client
+	res.cookie('jwt', token, cookieOptions)
+	// send response
+	res.status(statusCode).json({
+		status: 'success',
+		token: token,
+		userName: user.name
+	})
+}
+
 exports.signup = async (req, res, next) => {
 	try {
 		const newUser = await User.create({
@@ -13,16 +34,7 @@ exports.signup = async (req, res, next) => {
 			passwordConfirm: req.body.password
 		})
 
-		const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-			expiresIn: process.env.JWT_EXPIRES_IN
-		})
-		res.status(201).json({
-			status: 'success',
-			token: token,
-			data: {
-				user: newUser
-			}
-		})
+		createSendToken(newUser, 201, res)
 	} catch (err) {
 		return next(err)
 	}
@@ -42,15 +54,8 @@ exports.login = async (req, res, next) => {
 		if (userMatched) {
 			const checkPassword = await userMatched.checkPassword(password, userMatched.password)
 			if (!checkPassword) return next(new AppError('Incorrect email or password, please try again.', 401))
-
-			const token = jwt.sign({ id: userMatched._id }, process.env.JWT_SECRET, {
-				expiresIn: process.env.JWT_EXPIRES_IN
-			})
-
-			res.status(200).json({
-				status: 'success',
-				token: token // the id is inside  the token
-			})
+			// send response
+			createSendToken(userMatched, 200, res)
 		} else {
 			return next(new AppError('Incorrect email or password, please try again.', 401))
 		}
@@ -151,15 +156,7 @@ exports.resetPassword = async (req, res, next) => {
 		await user.save()
 
 		// 4) log user by sending JWT token
-		const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-			expiresIn: process.env.JWT_EXPIRES_IN
-		})
-
-		res.status(200).json({
-			status: 'success',
-			token: jwtToken,
-			message: 'password updated success, login...'
-		})
+		createSendToken(user, 200, res)
 	} catch (err) {
 		return next(err)
 	}
@@ -182,13 +179,7 @@ exports.updatePassword = async (req, res, next) => {
 		await user.save()
 
 		// 3- send user new JWT token
-		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-			expiresIn: process.env.JWT_EXPIRES_IN
-		})
-		res.status(200).json({
-			status: 'success',
-			token: token
-		})
+		createSendToken(user, 200, res)
 	} catch (err) {
 		return next(err)
 	}
