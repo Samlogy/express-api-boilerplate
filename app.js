@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
 const xssCleaner = require('xss-clean')
+const hpp = require('hpp')
 
 //own imports
 const contactsRouter = require('./src/routes/contactsRoutes')
@@ -45,8 +46,16 @@ app.use(express.json({ limit: '10kb' }))
 
 // data sanitization against NoSQL injection
 app.use(mongoSanitize())
+
 // data sanitization against XSS to prevent HTML code inside database
 app.use(xssCleaner())
+
+// clean parameter polution (?sort=price,sort=name)
+app.use(
+	hpp({
+		whitelist: ['rating', 'difficulty']
+	})
+)
 //-------------------------------------------------------------------------------------------
 //ROUTES
 app.use('/api/v1/contacts', contactsRouter)
